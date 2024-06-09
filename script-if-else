@@ -1,0 +1,37 @@
+
+
+#!/bin/bash
+
+# Prompt the user for the username
+read -p "Enter the SSH username: " REMOTE_USER
+read -p "Enter the IP: " REMOTE_HOST
+
+# Define other variables
+
+INITIAL_COMMAND="get sys status"
+SECONDARY_COMMAND="get sys performance status"
+OUTPUT_FILE="/shell/output_file_if_else.txt"
+OUTPUT_FILE2="/shell/output_file_if_else_result.txt"
+KEYWORD="dgrregrjaskiratLab"
+
+# Function to execute SSH command and save output
+execute_ssh_command1() {
+    local command=$1
+    ssh ${REMOTE_USER}@${REMOTE_HOST} "${command}" >> ${OUTPUT_FILE}
+}
+
+execute_ssh_command2() {
+    local command=$1
+    ssh ${REMOTE_USER}@${REMOTE_HOST} "${command}" >> ${OUTPUT_FILE2}
+}
+
+# Execute the initial command and save the output
+execute_ssh_command1 "${INITIAL_COMMAND}"
+
+# Check if the output contains the specified keyword
+if grep -q "${KEYWORD}" ${OUTPUT_FILE}; then
+    echo "Keyword '${KEYWORD}' found in output. Executing secondary command..."
+    execute_ssh_command2 "${SECONDARY_COMMAND}"
+else
+    echo "Keyword '${KEYWORD}' not found in output."
+fi
