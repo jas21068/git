@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Define variables
+
+read -p "Enter the IP: " REMOTE_HOST
+read -p "Enter the ping: " PING_COUNT
+
+
+FAILURE_THRESHOLD=3
+FAILURE_COUNT=0
+TASK_COMMAND="echo 'Ping to ${REMOTE_HOST} failed 3 times in a row' >> /shell/pingfail.txt"
+
+# Function to perform the task
+perform_task() {
+    echo "Performing the task..."
+    ${TASK_COMMAND}
+    REMOTE_USER="admin"
+    REMOTE_HOST1="172.16.1.1"
+    REMOTE_COMMAND1="
+    get sys status
+    get sys performance status
+    diag sniffer packet any '' 4 100 l
+    diag debug crashlog read"
+    
+    OUTPUT_FILE1="/shell/debug_on_fail.txt"
+
+# SSH into the remote device and execute the command
+    ssh ${REMOTE_USER}@${REMOTE_HOST1} "${REMOTE_COMMAND1}" > ${OUTPUT_FILE1}
+
+}
+
+# Monitor pings to the device
+while true; do
+    if ping -c ${PING_COUNT} ${REMOTE_HOST} > /dev/null; then
+        echo "Ping to ${REMOTE_HOST} successful"
+        FAILURE_COUNT=0
+    else
+        echo "Ping to ${REMOTE_HOST} failed"
+        ((FAILURE_COUNT++))
+        if [ ${FAILURE_COUNT} -ge ${FAILURE_THRESHOLD} ]; then
+            echo "Ping failed ${FAILURE_COUNT} times in a row. Executing the task..."
+            perform_task
+            FAILURE_COUNT=0
+        fi
+    fi
+    sleep 1  # Adjust the sleep interval as needed
+done
