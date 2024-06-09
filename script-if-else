@@ -2,7 +2,7 @@
 
 #!/bin/bash
 
-# Prompt the user for the username
+# Prompt the user for the username:usersfarg
 read -p "Enter the SSH username: " REMOTE_USER
 read -p "Enter the IP: " REMOTE_HOST
 
