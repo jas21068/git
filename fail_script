@@ -20,7 +20,9 @@ perform_task() {
     get sys status
     get sys performance status
     diag sniffer packet any '' 4 100 l
-    diag debug crashlog read"
+    diag debug crashlog read
+    diag debug rating
+"
     
     OUTPUT_FILE1="/shell/debug_on_fail.txt"
 
